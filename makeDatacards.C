@@ -82,7 +82,7 @@ void makeOneDatacardTop(TString inputname, TString category, TString wpmin, TStr
   std::cout << "tp3_xsec     lnN      1.05 - - -    1.05 - - - \n";
   std::cout << "tp2_xsec     lnN      - 1.05 - -    - 1.05 - - \n";
   std::cout << "tp1_xsec     lnN      - - 1.05 -    - - 1.05 - \n";
-  std::cout << "other_xsec   lnU      - - - 2.00    - - - 2.00 \n";
+  std::cout << "other_xsec   lnU      - - - 5.00    - - - 5.00 \n";
   
   std::cout << "\n";
 

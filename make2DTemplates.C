@@ -29,6 +29,11 @@ double massSmear(double mass, unsigned long lumi, unsigned long event, double si
   return rnd.Gaus(1, sigma)*mass; 
 }
 
+double massAffine(double mass, double central, double shift=0., double smear=1.)
+{
+  // function used only if useAffine is set to true
+  return central + (mass-central)*smear + shift;
+}
 
 void make2DTemplates(TString sample, TString era, TString wpmin, TString wpmax) 
 {  
@@ -57,8 +62,8 @@ void makeTemplatesTop(TString path2file, TString era, TString cat, TString wpmin
 
   TString path;
   float intLumi;
-  if (era == "2016") { path = conf::path_2016; intLumi= 19.52;  }
-  //if (era == "2016") { path = conf::path_2016; intLumi= 16.81;  }
+  if (era == "2016APV") { path = conf::path_2016APV; intLumi= 19.52;  }
+  if (era == "2016") { path = conf::path_2016; intLumi= 16.81;  }
   if (era == "2017") { path = conf::path_2017; intLumi= 41.53; }
   if (era == "2018") { path = conf::path_2018; intLumi= 59.74; }
   if (era == "2022") { path = conf::path_2022; intLumi= 7.98; }
@@ -248,16 +253,44 @@ TH2D *create2Dhisto(TString sample, TTree *tree,TString intLumi,TString cuts,TSt
 
   TString massScaleVal_ = "1.05"; if (name.Contains("Down")) { massScaleVal_ = "0.95"; }
   TString massSmearVal_ = "0.10"; if (name.Contains("Down")) { massSmearVal_ = "0."; }
-  
+
+  bool useSharpedSmearDn = true;
+  bool useAffine = false;
+
+  if (useSharpedSmearDn) { massSmearVal_ = "0.10"; }
+  if (useAffine) {
+    // affine parameters for mass: absolute shift, and smearing
+    massScaleVal_ = (name.Contains("Up")) ? "4.0" : "-4.0";
+    massSmearVal_ = (name.Contains("Up")) ? "1.5" : "0.5";
+  }
+  // calculate the mean of the mass
+  tree->Draw(branchX + ">>hTempX", cut);
+  TString meanX = TString::Format("%f", ((TH1D*)gDirectory->Get("hTempX"))->GetMean());
+
   if (name.Contains("jms")) 
     { 
       std::cout << " In jms \n";
-      tree->Project(name,branchY+":(massScale("+branchX+","+massScaleVal_+"))",cut);
+      if (!useAffine)
+        tree->Project(name,branchY+":(massScale("+branchX+","+massScaleVal_+"))",cut);
+      else
+        tree->Project(name,branchY+":(massAffine("+branchX+","+meanX+","+massScaleVal_+",1.))",cut);
     }
   else if (name.Contains("jmr")) 
     { 
       std::cout << " In jmr \n";
-      tree->Project(name,branchY+":(massSmear("+branchX+",luminosityBlock,event,"+massSmearVal_+"))",cut); 
+      if (!useAffine) {
+        if (useSharpedSmearDn && name.Contains("Down")) {
+          tree->Project(name,branchY+":"+branchX,cut);
+          TH2D *hTempSub = new TH2D(name+"Sub",name+"Sub",binsX,minX,maxX,binsY,minY,maxY);
+          tree->Project(name+"Sub",branchY+":(massSmear("+branchX+",luminosityBlock,event,"+massSmearVal_+"))",cut);
+          hTemp->Scale(2.);
+          hTemp->Add(hTempSub, -1);
+        }
+        else
+          tree->Project(name,branchY+":(massSmear("+branchX+",luminosityBlock,event,"+massSmearVal_+"))",cut);
+      }
+      else
+        tree->Project(name,branchY+":(massAffine("+branchX+","+meanX+",0.,"+massSmearVal_+"))",cut);
     }
   else
     {

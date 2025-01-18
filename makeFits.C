@@ -80,7 +80,7 @@ void makeOneFitTop(std::string era, std::string category, std::string wpmin, std
   system("rm higgsCombine*.root");
   
   // post fit plots
-  system("root -l -q \'HeavyFlavourZCandleStudies.C(\"'"+(TString)era+"'\",\"tt1l\",\"'"+(TString)category+"'\",\"'"+(TString)wpmin+"'\",\"'"+(TString)wpmax+"'\",true,\"pass\",\"jmcor\")\'");
-  system("root -l -q \'HeavyFlavourZCandleStudies.C(\"'"+(TString)era+"'\",\"tt1l\",\"'"+(TString)category+"'\",\"'"+(TString)wpmin+"'\",\"'"+(TString)wpmax+"'\",true,\"fail\",\"jmcor\")\'");
+  system("root -b -l -q \'HeavyFlavourZCandleStudies.C(\"'"+(TString)era+"'\",\"tt1l\",\"'"+(TString)category+"'\",\"'"+(TString)wpmin+"'\",\"'"+(TString)wpmax+"'\",true,\"pass\",\"jmcor\")\'");
+  system("root -b -l -q \'HeavyFlavourZCandleStudies.C(\"'"+(TString)era+"'\",\"tt1l\",\"'"+(TString)category+"'\",\"'"+(TString)wpmin+"'\",\"'"+(TString)wpmax+"'\",true,\"fail\",\"jmcor\")\'");
   
 }

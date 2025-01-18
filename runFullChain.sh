@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x
 
 object=$1
 year=$2
@@ -100,6 +100,9 @@ then
     fi
 fi 
 
+# hack here
+mist_rates=("wp1" "wp2")
+WPs_FullVer_vs_QCD=(["wp1"]="0.9259" ["wp2"]="0.9") 
 for era in ${year}
 do
    for mistRate in "${mist_rates[@]}";
@@ -114,9 +117,9 @@ do
       cmd_datacards=$(echo 'makeDatacards.C("'${era}'","tt1l","'${category}'","'${wpmin}'","1.00")')
       cmd_makefits=$(echo 'makeFits.C("'${era}'","'${category}'","'${wpmin}'","1.00","tt1l")')
      
-      root -l -q ${cmd_templates2d}
-      root -l -q ${cmd_templates1d}
-      root -l -q ${cmd_datacards}
-      root -l -q ${cmd_makefits} | tee ${object}_${year}_${version}_${wpmin}.txt
+      root -b -l -q ${cmd_templates2d}
+      root -b -l -q ${cmd_templates1d}
+      root -b -l -q ${cmd_datacards}
+      root -b -l -q ${cmd_makefits} | tee ${object}_${year}_${version}_${wpmin}.txt
    done
 done
